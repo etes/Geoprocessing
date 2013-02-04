@@ -5,7 +5,7 @@ Created on 5. sep. 2012
 '''
 
 import arcpy
-
+# Workspace directory
 arcpy.env.workspace = 'C:/Data/Projects/IsAnalyse/Isdata/barents_shp'
 
 fcs = arcpy.ListFeatureClasses()
