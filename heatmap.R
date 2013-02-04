@@ -1,11 +1,11 @@
-#install.packages("RSQLite")
-#install.packages("XML")
-#install.packages("ggplot2")
-#install.packages(c("maps","mapproj"))
+install.packages("RSQLite")
+install.packages("XML")
+install.packages("ggplot2")
+install.packages(c("maps","mapproj"))
 #install.packages("stalkR_0.02.zip", repos=NULL, type="source")
 #install.packages("C:/Users/ermias/Documents/stalkR.zip", repos=NULL, type="source")
 #install.packages("C:/Users/ermias/Documents/stalkR_0.02.zip",lib="C:/Users/ermias/Documents/R/win-library/2.13", repos=NULL, type="source")
-#install.packages('RgoogleMaps')
+install.packages('RgoogleMaps')
 
 
 library(RgoogleMaps)

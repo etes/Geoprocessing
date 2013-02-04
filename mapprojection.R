@@ -1,3 +1,5 @@
+install.packages("akima")
+install.packages("mapproj")
 #interpolation of xyz data and projection onto a map
 map.xyz <- function(xyz_data, file_name="map.xyz.png",
  
