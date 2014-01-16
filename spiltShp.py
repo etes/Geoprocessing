@@ -3,8 +3,6 @@ Created on 17. des. 2012
 
 @author: ermias.TESSINFJELLET
 '''
-
-
 import arcpy
 from arcpy import env
 
