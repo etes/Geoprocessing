@@ -6,16 +6,16 @@ Created on 17. des. 2012
 import arcpy
 from arcpy import env
 
-env.workspace = r"C:\Data\Projects\u37"
+env.workspace = r"C:\Data\Projects\u37_test"
 env.overwriteOutput = "True"
 
 # Create a pollution file geodatabase if it doesn't exist
 try:
-    arcpy.CreateFileGDB_management("C:/Data/Projects/u37", "pollution.gdb")
+    arcpy.CreateFileGDB_management("C:/Data/Projects/u37_test", "pollution.gdb")
 except:
     pass
 
-outWorkspace = "C:/Data/Projects/u37/pollution.gdb/"
+outWorkspace = "C:/Data/Projects/u37_test/pollution.gdb/"
 
 fcs = arcpy.ListFeatureClasses()
 
