@@ -383,3 +383,206 @@ interact.varobj<-function(v,region=0,g="s",pchi=0.05,zmv=0){
 #Identifikation in studentisierter VC
 
 palette(c("black","cyan","magenta","green3","yellow","blue","white","red"))
+
+n<-length(v$h)
+infm<-solve(v$cg);
+cv<-chol((infm+t(infm))/2);
+XM<-cbind(gamsph1(v$h,v$pars),gamsph2(v$h,v$pars),gamsph3(v$h,v$pars))*(gamsph(v$h,v$pars))^(-0.75)/4
+Vare<-v$cg-XM%*%solve(t(XM)%*%solve(v$cg,XM),t(XM))
+#sig<-mean(sqrt(diag(Vare)))
+e<-v$res
+sig<-sqrt(sum(e^2)/(n-3))
+gdd<-(2^0.25*gamma(0.75)/sqrt(pi))*gamsph(v$h,v$pars)^0.25+e*sig/sqrt(diag(Vare))
+xn<-v$data[,c(2,1)]
+r1<-v$loores[row(v$loores)<col(v$loores)]
+tloores<-t(v$loores)
+r2<-tloores[row(tloores)<col(tloores)]
+resi<-v$loores-v$loores
+resi[row(resi)<col(resi)]<-v$res
+resi<-resi+t(resi)
+
+n0<-length(v$lofa)
+xn<-v$data[,c(2,1)]
+xy<-matrix(0,n,4)
+te<-crossprod(matrix(1,1,n0),t(xn[,1]))
+xy[,1]<-te[row(te)<col(te)]
+te<-crossprod(t(xn[,1]),matrix(1,1,n0))
+xy[,2]<-te[row(te)<col(te)]
+te<-crossprod(matrix(1,1,n0),t(xn[,2]))
+xy[,3]<-te[row(te)<col(te)]
+te<-crossprod(t(xn[,2]),matrix(1,1,n0))
+xy[,4]<-te[row(te)<col(te)]
+
+if(g=="l"){
+   par(mfrow=c(2,2))
+   par(mfg=c(2,1,2,2))
+   par(p21)
+   par(fig=c(0,0.5,0,0.5))
+   xyi<-identify(matrix(cbind(v$res,v$res),n*2,1),matrix(cbind(r1,r2),n*2,1),plot=FALSE,n=1)
+   if(xyi>n) xyi<-xyi-n
+}
+
+if(g=="m"){
+   par(mfrow=c(2,2))
+   par(mfg=c(1,1,2,2))
+   par(p11)
+   par(fig=c(0,0.5,0.5,1))
+   ix0<-identify(xn[,2],xn[,1],plot=TRUE,n=1)
+   points(xn[ix0,2],xn[ix0,1],pch=16,col=6)
+
+      ind1<-ceiling(sqrt((2*(1:n)+0.25))-0.5)+1
+      ind2<-(1:n)-ceiling(sqrt((2*(1:n)+0.25))-0.5)/2*(ceiling(sqrt((2*(1:n)+0.25))-0.5)-1)
+      par(p12)
+      par(mfrow=c(2,2),mfg=c(1,2,2,2),fig=c(0.5,1,0.5,1))
+#      par(mfg=c(1,2,2,2))
+#      par(fig=c(0.5,1,0.5,1))
+      points(v$h[ind1==ix0 | ind2 == ix0],gdd[ind1==ix0 | ind2 == ix0],pch=16,col=6)
+      par(mfrow=c(2,2))
+      par(mfg=c(2,1,2,2))
+      par(p21)
+      par(fig=c(0,0.5,0,0.5))
+      points(t(resi[ix0,-ix0]),t(v$loores[ix0,-ix0]),pch=16,col=6)
+
+      par(mfrow=c(2,2))
+   par(mfg=c(1,1,2,2))
+   par(p11)
+   par(fig=c(0,0.5,0.5,1))
+   iy0<-identify(xn[,2],xn[,1],plot=FALSE,n=1)
+   if(length(iy0)>0){
+      ix<-max(ix0,iy0)
+      iy<-min(ix0,iy0)
+      xyi<-(ix-1)*(ix-2)/2+iy}
+   else{
+      xyi<-0
+#      dev.off()
+#      PlotDiag.varobj(v,region,zmv=zmv)
+#      par(mfrow=c(2,2))
+#      par(mfg=c(1,1,2,2))
+#      par(p11)
+#      par(fig=c(0,0.5,0.5,1))
+#      points(xn[ix0,2],xn[ix0,1],pch=16,col=6)
+#      identify(xn[,2],xn[,1],plot=T,pts=cbind(xn[ix0,2],xn[ix0,1]))
+      ind1<-ceiling(sqrt((2*(1:n)+0.25))-0.5)+1
+      ind2<-(1:n)-ceiling(sqrt((2*(1:n)+0.25))-0.5)/2*(ceiling(sqrt((2*(1:n)+0.25))-0.5)-1)
+      par(mfrow=c(2,2))
+      par(mfg=c(1,2,2,2))
+      par(p12)
+      par(fig=c(0.5,1,0.5,1))
+      points(v$h[ind1==ix0 | ind2 == ix0],gdd[ind1==ix0 | ind2 == ix0],pch=16,col=6)
+      par(mfrow=c(2,2))
+      par(mfg=c(2,1,2,2))
+      par(p21)
+      par(fig=c(0,0.5,0,0.5))
+      points(t(resi[ix0,-ix0]),t(v$loores[ix0,-ix0]),pch=16,col=6)
+      }
+}
+
+if(g=="s"){
+   par(mfrow=c(2,2))
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+   xyi<-identify(v$h,gdd,plot=FALSE,n=1)
+}
+
+if(g=="t"){
+   par(mfrow=c(2,2))
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+   p<-locator(n=500,type="l",col=4)
+   m<-length(p$x)
+   lines(p$x[c(m,1)],p$y[c(m,1)],col=2)
+   i<-t(outer(v$h,p$x,FUN="-"))/(p$x[c(2:m,1)]-p$x)
+   gt<-apply(t((i*(p$y[c(2:m,1)]-p$y)+p$y))>=gdd&t((i>=0)&(i<=1)),1,"sum")
+   s<-apply(t((i*(p$y[c(2:m,1)]-p$y)+p$y))<=gdd&t((i>=0)&(i<=1)),1,"sum")
+   i0<-(s%%2)|(gt%%2)
+   dev.off()
+   PlotDiag.varobj(v,region)
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+   points(v$h[i0],gdd[i0],pch=16,col=3)
+   polygon(p,den=0,col=4)
+
+   par(mfg=c(1,1,2,2))
+   par(p11)
+   par(fig=c(0,0.5,0.5,1))
+   segments(xy[i0,3],xy[i0,1],xy[i0,4],xy[i0,2],pch=16,col=3,lwd=3)
+
+   xyi<-0
+}
+
+if(g=="x"){
+   par(mfrow=c(2,2))
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+
+   i0<-(gdd-(2^0.25*gamma(0.75)/sqrt(pi))*gamsph(v$h,v$pars)^0.25)/sig>qnorm(1-pchi/2)
+   i0a<-(-gdd+(2^0.25*gamma(0.75)/sqrt(pi))*gamsph(v$h,v$pars)^0.25)/sig>qnorm(1-pchi/2)
+   dev.off()
+   PlotDiag.varobj(v,region,zmv=zmv)
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+   points(v$h[i0],gdd[i0],pch=16,col=3)
+   points(v$h[i0a],gdd[i0a],pch=16,col=4)
+
+   xv<-seq(0.0001,max(v$h),0.01)
+
+#   lines(xv,gamsph(xv,v$pars)*qchisq(1-pchi,1),lty=4,lwd=2)
+   lines(xv,(2^0.25*gamma(0.75)/sqrt(pi))*gamsph(xv,v$pars)^0.25+sig*qnorm(1-pchi/2),lty=4,lwd=2)
+   lines(xv,(2^0.25*gamma(0.75)/sqrt(pi))*gamsph(xv,v$pars)^0.25-sig*qnorm(1-pchi/2),lty=4,lwd=2)
+   par(p11)
+
+   par(mfg=c(1,1,2,2))
+   par(p11)
+print(xy[i0,])
+   par(fig=c(0,0.5,0.5,1))
+   segments(xy[i0,3],xy[i0,1],xy[i0,4],xy[i0,2],pch=16,col=3,lwd=2)
+   segments(xy[i0a,3],xy[i0a,1],xy[i0a,4],xy[i0a,2],pch=16,col=4,lwd=2)
+
+   xyi<-0
+}
+
+if(g=="n"){
+   par(mfrow=c(2,2))
+   par(mfg=c(1,1,2,2))
+   par(p11)
+   par(fig=c(0,0.5,0.5,1))
+   p<-locator(n=500,type="l",pch=16,col=4)
+   m<-length(p$x)
+   lines(p$x[c(m,1)],p$y[c(m,1)],col=2)
+   i<-t(outer(xn[,2],p$x,FUN="-"))/(p$x[c(2:m,1)]-p$x)
+   gt<-apply(t((i*(p$y[c(2:m,1)]-p$y)+p$y))>=xn[,1]&t((i>=0)&(i<=1)),1,"sum")
+   s<-apply(t((i*(p$y[c(2:m,1)]-p$y)+p$y))<=xn[,1]&t((i>=0)&(i<=1)),1,"sum")
+   i0<-(s%%2)|(gt%%2)
+   nl<-length(v$h)
+   ind1<-ceiling(sqrt((2*(1:nl)+0.25))-0.5)+1
+   ind2<-(1:nl)-ceiling(sqrt((2*(1:nl)+0.25))-0.5)/2*(ceiling(sqrt((2*(1:nl)+0.25))-0.5)-1)
+   i00<-match(ind1,(1:n0)[i0],nomatch=FALSE)&match(ind2,(1:n0)[i0],nomatch=FALSE)
+   dev.off()
+   PlotDiag.varobj(v,region)
+   par(mfg=c(1,2,2,2))
+   par(p12)
+   par(fig=c(0.5,1,0.5,1))
+   points(v$h[i00],gdd[i00],pch=16,col=3)
+
+   par(mfg=c(1,1,2,2))
+   par(p11)
+   par(fig=c(0,0.5,0.5,1))
+   polygon(p,den=0,col=4)
+   segments(xy[i00,3],xy[i00,1],xy[i00,4],xy[i00,2],pch=16,col=3,lwd=3)
+
+}
+
+#print(xyi)
+
+if(g!="t"&g!="x"&g!="n"& xyi>0){
+   dev.off()
+   PlotDiag.varobj(v,region,xyi=xyi,zmv=zmv)
+}
+
+xyi}
+
