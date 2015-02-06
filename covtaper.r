@@ -1,7 +1,8 @@
+# Load required packages
+if (!require("gstat")) install.packages("gstat")
+if (!require("automap")) install.packages("automap")
 # import data
-library(gstat)
-library(automap)
-tab = read.table("/data/gtestsim1.csv", header=TRUE)
+tab = read.table("data/gtestsim1.csv", header=TRUE)
 coordinates(tab) = ~x+y
 v = as.data.frame(variogram(data~1, tab, cloud = TRUE, cutoff = Inf))
 # nach Distanzen sortierte Variogrammwolke => liefert keine anderen Ergebnisse mit fit.variogram.gls
@@ -33,14 +34,14 @@ return(th[1]+th[2])
 }
 }
 
-estvar <- function(h0, y, iter=50, tolerance=0.0002, trace=1, th0=rbind(0,1,1)) 
+estvar <- function(h0, y, iter=50, tolerance=0.0002, trace=1, th0=rbind(0,1,1))
 	{
 
 	#EJP added:
 	#stop("this function requires nlregb (an S-Plus proprietary function) to work")
-	
+
 	n<-ceiling(sqrt(2*length(h0)))
-	
+
 	#Vorbereitung für covgamma
 	n1<-n*(n-1)/2
 	#1. index der gamma[i,j] matrix
@@ -53,7 +54,7 @@ estvar <- function(h0, y, iter=50, tolerance=0.0002, trace=1, th0=rbind(0,1,1))
 	k3<-t(k1)
 	#2. teil des spaltenindex der covgamma gamma matrix
 	k4<-t(k2)
-	
+
 	if(!missing(th0)) {
 		#EJP outcommented:
 		#opt<-nlregb(n*(n-1)/2,cbind(0,max(y/2),max(h0)),fts,y=y^0.25,h1=h0,cv1=diag(n1),lower=cbind(0,0,0))
@@ -68,7 +69,7 @@ estvar <- function(h0, y, iter=50, tolerance=0.0002, trace=1, th0=rbind(0,1,1))
 	#th0<-th1_c(3.72635248595876, 15.5844183738953, 1.22109233789852)
 	#th1<-c(0.0000000,7.6516077,0.7808538)
 	for (i in 1:iter) {
-		if(trace>0) 
+		if(trace>0)
 			print(i)
 		gg<-sqrt(2*gamsph(h0,th1))
 		#Spalte 1, Spalte 2, ...
@@ -104,5 +105,3 @@ estvar <- function(h0, y, iter=50, tolerance=0.0002, trace=1, th0=rbind(0,1,1))
 	v$lof<-t(v$res)%*%solve(corg,v$res)
 	v
 }
-
-

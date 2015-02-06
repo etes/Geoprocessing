@@ -1,14 +1,18 @@
-install.packages("RSQLite")
-install.packages("XML")
-install.packages("ggplot2")
-install.packages(c("maps","mapproj"))
+# Load required packages
 #install.packages("stalkR_0.02.zip", repos=NULL, type="source")
 #install.packages("C:/Users/ermias/Documents/stalkR.zip", repos=NULL, type="source")
 #install.packages("C:/Users/ermias/Documents/stalkR_0.02.zip",lib="C:/Users/ermias/Documents/R/win-library/2.13", repos=NULL, type="source")
-install.packages('RgoogleMaps')
 
+pkgs = c("RSQLite","XML","ggplot2", "maps", "mapproj", "RgoogleMaps")
 
-library(RgoogleMaps)
+loadPackages <- function(x){
+    new.x <- x[!(x %in% installed.packages()[, "Package"])]
+    if (length(new.x))
+        install.packages(new.x, dependencies = TRUE)
+    sapply(x, require, character.only = TRUE)
+}
+loadPackages(pkgs)
+
 Df<-read.csv("pmap3.csv",sep=";",header=FALSE)
 names(Df)<-c("Latitude", "Longitude","key")
 
@@ -55,17 +59,17 @@ cex=2,pch=20,col=heat.colors(nrow(Df2), alpha = rescaled), MyMap=Map, NEWMAP=FAL
 
 #### Meuse data coordinate transformation
 library(gstat)
-library(rgdal) 
-data(meuse) 
-coordinates(meuse) =~ x + y 
-proj4string(meuse) = CRS("+init=epsg:28992") 
-bbox(meuse) 
-meuse1 = spTransform(meuse, CRS(paste("+proj=stere +lat_0=90", 
-   "+lon_0=0.0 +lat_ts=60.0 +a=6378388 +b=6356912 +x_0=0 +y_0=0"))) 
-bbox(meuse1) 
-meuse2 <- spTransform(meuse1, CRS("+init=epsg:28992")) 
-bbox(meuse2) 
-all.equal(bbox(meuse), bbox(meuse2)) 
+library(rgdal)
+data(meuse)
+coordinates(meuse) =~ x + y
+proj4string(meuse) = CRS("+init=epsg:28992")
+bbox(meuse)
+meuse1 = spTransform(meuse, CRS(paste("+proj=stere +lat_0=90",
+   "+lon_0=0.0 +lat_ts=60.0 +a=6378388 +b=6356912 +x_0=0 +y_0=0")))
+bbox(meuse1)
+meuse2 <- spTransform(meuse1, CRS("+init=epsg:28992"))
+bbox(meuse2)
+all.equal(bbox(meuse), bbox(meuse2))
 
 ###########################################3
 #### Meuse data plot on google
@@ -73,11 +77,11 @@ library(gstat)
 library(rgdal)
 library(ReadImages)
 library(RgoogleMaps)
-data(meuse) 
-coordinates(meuse) =~ x + y 
-proj4string(meuse) = CRS("+init=epsg:28992") 
-bbox(meuse) 
-meuse1 = spTransform(meuse, CRS("+init=epsg:4326")) 
+data(meuse)
+coordinates(meuse) =~ x + y
+proj4string(meuse) = CRS("+init=epsg:28992")
+bbox(meuse)
+meuse1 = spTransform(meuse, CRS("+init=epsg:4326"))
 bbox(meuse1)
 meuse2=as.data.frame(meuse1)
 mzn=meuse2[,c(14,13,4)]
@@ -99,23 +103,23 @@ library(RgoogleMaps)
 png(filename="GetMap.OSM_%03d_med.png", width=480, height=480)
 CologneMap <- GetMap.OSM(lonR= c(6.89, 7.09), latR = c(50.87, 51), scale = 150000, destfile = "Cologne.png");
   	PlotOnStaticMap(CologneMap, mar=rep(4,4), NEWMAP = FALSE, TrueProj = FALSE, axes= TRUE);
-		
+
 		PrincetonMap <- GetMap.OSM(lonR= c(-74.67102, -74.63943), latR = c(40.33804,40.3556), scale = 12500, destfile = "Princeton.png");
 		png("PrincetonWithAxes.png", 1004, 732)
         PlotOnStaticMap(PrincetonMap, axes = TRUE, mar = rep(4,4));
         dev.off()
-        
+
 ###### Meuse on OSM
 
 library(gstat)
 library(rgdal)
 library(ReadImages)
 library(RgoogleMaps)
-data(meuse) 
-coordinates(meuse) =~ x + y 
-proj4string(meuse) = CRS("+init=epsg:28992") 
-bbox(meuse) 
-meuse1 = spTransform(meuse, CRS("+init=epsg:4326")) 
+data(meuse)
+coordinates(meuse) =~ x + y
+proj4string(meuse) = CRS("+init=epsg:28992")
+bbox(meuse)
+meuse1 = spTransform(meuse, CRS("+init=epsg:4326"))
 bbox(meuse1)
 meuse2=as.data.frame(meuse1)
 mzn=meuse2[,c(14,13,4)]
@@ -190,7 +194,3 @@ cex=1,pch=20,col="red", MyMap=Map, NEWMAP=FALSE)
 
 tmp <- PlotOnStaticMap(lat=pm$Lat, lon=pm$Long,
 cex=1,pch=20,col=heat.colors(nrow(pm), alpha = pm$Magnitude), MyMap=Map, NEWMAP=FALSE)
-
-
-
-

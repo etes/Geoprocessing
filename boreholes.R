@@ -1,6 +1,8 @@
-library(rgdal)
-library(RgoogleMaps)
-boreholes<- read.csv("boreholes.csv", sep=",", header=TRUE)
+# Load required packages
+if (!require("rgdal")) install.packages("rgdal")
+if (!require("RgoogleMaps")) install.packages("RgoogleMaps")
+
+boreholes<- read.csv("data/boreholes.csv", sep=",", header=TRUE)
 bh_grd <- SpatialPoints(boreholes[,c("East","North")],
                         proj4string=CRS("+proj=utm +zone=32 +datum=WGS84"))
 bholes<- SpatialPointsDataFrame(bh_grd,boreholes[,-c(2,3)])

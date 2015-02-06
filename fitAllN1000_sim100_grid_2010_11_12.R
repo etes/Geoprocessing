@@ -1,6 +1,6 @@
-library(geoR)
-library(gstat)
-library(RandomFields)
+# Load required packages
+pkgs = c("geoR","gstat","RandomFields")
+lapply(pkgs, function(pkgs) {if (!require(pkgs, character.only=T)) install.packages(pkgs)})
 
 result <- data.frame(name="", gls=FALSE, wlsnugget=0, wlssill=0, wlsrange=0, olsnugget=0, olssill=0, olsrange=0, mlnugget=0, mlsill=0, mlrange=0, remlnugget=0, remlsill=0, remlrange=0)
 for (i in 1:1000) {
@@ -39,7 +39,3 @@ res = data.frame(name=file, gls=FALSE, wlsnugget=wlsnug, wlssill=wlssil, wlsrang
 result = rbind(result, res)
 }
 write.table(result, "~/sim_2010_11_08/allfitK100_2010_11_03_grid05_05_45_1000.csv")
-
-
-
-
