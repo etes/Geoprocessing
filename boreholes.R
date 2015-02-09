@@ -1,5 +1,5 @@
 # Load required packages
-if (!require("rgdal")) install.packages("rgdal")
+if (!require("rgdal")) install.packages("rgdal", repos="http://cran.rstudio.com/")
 if (!require("RgoogleMaps")) install.packages("RgoogleMaps")
 
 boreholes<- read.csv("data/boreholes.csv", sep=",", header=TRUE)
