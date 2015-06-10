@@ -109,8 +109,8 @@ class HendelserTool(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         in_features = parameters[0].value
-	start_time_field = str(parameters[1].value)
-	end_time_field = str(parameters[2].value)
+        start_time_field = str(parameters[1].value)
+        end_time_field = str(parameters[2].value)
         ovelse_gdb = parameters[3].value
         track_features_name = str(parameters[4].value)
         time_interval = int(parameters[5].value)
@@ -135,7 +135,10 @@ class HendelserTool(object):
             shape = row.getValue(dsc.shapeFieldName)
             start = row.getValue(start_time_field)
             end = row.getValue(end_time_field)
-            jnr = row.getValue("JNR")
+            try:
+                jnr = row.getValue("JNR")
+            except:
+                jnr = ""
             objectid = row.getValue("OBJECTID")
             total_dist = shape.length
             if end and start:
