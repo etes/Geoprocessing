@@ -164,7 +164,6 @@ class HendelserTool(object):
         if arcpy.Exists(temp_features):
             arcpy.AddMessage("Slette midlertidige feature klasse {0}.".format(temp_features))
             arcpy.DeleteFeatures_management(temp_features)
-	    arcpy.DeleteFeatures_management("in_memory")
         try:
             mxd = arcpy.mapping.MapDocument("CURRENT")
             dataFrame = arcpy.mapping.ListDataFrames(mxd, "*")[0]
