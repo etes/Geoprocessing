@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 class Toolbox(object):
     def __init__(self):
-        """Ovelse_oslofjord ArcGIS Python Toolbox 
+        """Ovelse_oslofjord ArcGIS Python Toolbox
         for bruk i Ovelse Oslofjørd 2015."""
         self.label = "Toolbox"
         self.alias = ""
