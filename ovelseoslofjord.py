@@ -2,9 +2,9 @@
 # Name:        Ovlese_Oslofjord
 # Purpose:
 #
-# Author:      ermias.TESSINFJELLET
+# Author:      ermtes.GEOWKS3-38240 2015
 #
-# Created:     19.12.2012
+# Created:     08.06.2015
 # Copyright:   (c) ermtes.GEOWKS3-38240 2015
 # Licence:     MIT
 #-------------------------------------------------------------------------------
@@ -159,6 +159,7 @@ class HendelserTool(object):
         if arcpy.Exists(temp_features):
             arcpy.AddMessage("Slette midlertidige feature klasse {0}.".format(temp_features))
             arcpy.DeleteFeatures_management(temp_features)
+	    arcpy.DeleteFeatures_management("in_memory")
         try:
             mxd = arcpy.mapping.MapDocument("CURRENT")
             dataFrame = arcpy.mapping.ListDataFrames(mxd, "*")[0]
