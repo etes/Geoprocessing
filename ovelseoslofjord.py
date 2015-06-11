@@ -27,7 +27,8 @@ class Toolbox(object):
 class HendelserTool(object):
     def __init__(self):
         """HendelserTool: Converts an asset movement (bevelgelser) line to a set of points track
-        calculated from average speed (from departure time and arrival time) of the asset."""
+        calculated from average speed (from departure time and arrival time) of the asset.
+        Parameters: Input line features, Start Time, End Time, Output path, Output feature class name, Time interval"""
         self.label = "HendelserTool"
         self.description = """HendelserTool: Converts an asset movement (bevelgelser) line to a set of points track
         calculated from average speed (from departure time and arrival time) of the asset.
@@ -35,7 +36,7 @@ class HendelserTool(object):
         self.canRunInBackground = False
 
     def getParameterInfo(self):
-        """Define parameter definitions"""
+        """Parameter definitions"""
         # First parameter
         param0 = arcpy.Parameter(
           displayName="Settin Linje Lag",
