@@ -72,30 +72,47 @@ bbox(meuse2)
 all.equal(bbox(meuse), bbox(meuse2))
 
 ###########################################3
-#### Meuse data plot on google
+#### Meuse data: plot with basemap
 library(gstat)
 library(rgdal)
-library(ReadImages)
-library(RgoogleMaps)
+library(sf)
+library(ggplot2)
+library(OpenStreetMap)
 data(meuse)
-coordinates(meuse) =~ x + y
+coordinates(meuse) = ~x+y
 proj4string(meuse) = CRS("+init=epsg:28992")
-bbox(meuse)
 meuse1 = spTransform(meuse, CRS("+init=epsg:4326"))
-bbox(meuse1)
+bb <- st_bbox(meuse1)
 meuse2=as.data.frame(meuse1)
 mzn=meuse2[,c(14,13,4)]
 names(mzn)<-c("Latitude","Longitude","zinc")
-bb <- qbbox(lat=range(mzn$Latitude), lon=range(mzn$Longitude))
 m <- c(mean(mzn$Latitude), mean(mzn$Longitude))
-zoom <- min(MaxZoom(latrange=bb$latR,lonrange=bb$lonR))
-Map <- GetMap.bbox(bb$lonR, bb$latR, zoom=zoom, maptype="mobile",
-NEWMAP=TRUE, destfile="tempmap.jpg", RETURNIMAGE=TRUE, GRAYSCALE=TRUE)
-## rescale=(0.5*(mzn$zinc+max(mzn$zinc))-min(mzn$zinc))/(max(mzn$zinc)-min(mzn$zinc))
-rescaled=(mzn$zinc-min(mzn$zinc))/(max(mzn$zinc)-min(mzn$zinc))
-tmp <- PlotOnStaticMap(lat=mzn$Latitude, lon=mzn$Longitude,
-cex=2,pch=20,col=heat.colors(nrow(mzn), alpha = rescaled), MyMap=Map, NEWMAP=FALSE)
+rescaled <- (mzn$zinc-min(mzn$zinc))/(max(mzn$zinc)-min(mzn$zinc))
+mzn <- cbind(mzn, rescaled)
+#mzn.point <- st_as_sf(x = mzn, coords = c("Longitude", "Latitude"), crs = "+proj=longlat +datum=WGS84")
 
+basemap <- openmap(c(bb$ymin, bb$xmin)-.003, c(bb$ymax, bb$xmax)+.001, zoom = NULL, 'stamen-terrain')
+mzn.coords <- cbind(mzn, projectMercator(mzn$Latitude,mzn$Longitude))
+
+maptheme <- theme(plot.title = element_text(face = "bold",size = rel(1.2), hjust = 0.5),
+                  axis.text.x = element_blank(), axis.text.y = element_blank(),
+                  axis.title.x = element_blank(), axis.title.y = element_blank(),
+                  axis.ticks = element_blank())
+breaks <- c(100,200,400,800,1600)
+autoplot(basemap) +
+  geom_point(data=mzn.coords, aes(x, y, size=zinc, color=zinc)) +
+  scale_color_gradient(low="blue", high="red", breaks=breaks, guide="legend") +
+  scale_size_continuous(breaks=breaks) +
+  maptheme
+
+# We can also create WGS84 map but we need to reproject the basemap from webmercator
+
+basemap.latlon <- openproj(basemap, projection = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+autoplot(basemap.latlon) +
+  geom_point(data=mzn.coords, aes(Longitude, Latitude, size=zinc, color=zinc)) +
+  scale_color_gradient(low="blue", high="red", breaks=breaks, guide="legend") +
+  scale_size_continuous(breaks=breaks) +
+  maptheme
 
 
 ##### OPEN STREET MAP
