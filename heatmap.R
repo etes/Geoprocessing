@@ -94,7 +94,7 @@ mzn <- cbind(mzn, rescaled)
 basemap <- openmap(c(bb$ymin, bb$xmin)-.003, c(bb$ymax, bb$xmax)+.001, zoom = NULL, 'stamen-terrain')
 mzn.coords <- cbind(mzn, projectMercator(mzn$Latitude,mzn$Longitude))
 
-maptheme <- theme(plot.title = element_text(face = "bold",size = rel(1.2), hjust = 0.5),
+maplayout <- theme(plot.title = element_text(face = "bold",size = rel(1.2), hjust = 0.5),
                   axis.text.x = element_blank(), axis.text.y = element_blank(),
                   axis.title.x = element_blank(), axis.title.y = element_blank(),
                   axis.ticks = element_blank())
@@ -103,7 +103,7 @@ autoplot(basemap) +
   geom_point(data=mzn.coords, aes(x, y, size=zinc, color=zinc)) +
   scale_color_gradient(low="blue", high="red", breaks=breaks, guide="legend") +
   scale_size_continuous(breaks=breaks) +
-  maptheme
+  maplayout
 
 # We can also create WGS84 map but we need to reproject the basemap from webmercator
 
@@ -112,63 +112,38 @@ autoplot(basemap.latlon) +
   geom_point(data=mzn.coords, aes(Longitude, Latitude, size=zinc, color=zinc)) +
   scale_color_gradient(low="blue", high="red", breaks=breaks, guide="legend") +
   scale_size_continuous(breaks=breaks) +
-  maptheme
+  maplayout
 
-
-##### OPEN STREET MAP
-library(RgoogleMaps)
-png(filename="GetMap.OSM_%03d_med.png", width=480, height=480)
-CologneMap <- GetMap.OSM(lonR= c(6.89, 7.09), latR = c(50.87, 51), scale = 150000, destfile = "Cologne.png");
-  	PlotOnStaticMap(CologneMap, mar=rep(4,4), NEWMAP = FALSE, TrueProj = FALSE, axes= TRUE);
-
-		PrincetonMap <- GetMap.OSM(lonR= c(-74.67102, -74.63943), latR = c(40.33804,40.3556), scale = 12500, destfile = "Princeton.png");
-		png("PrincetonWithAxes.png", 1004, 732)
-        PlotOnStaticMap(PrincetonMap, axes = TRUE, mar = rep(4,4));
-        dev.off()
-
-###### Meuse on OSM
-
-library(gstat)
-library(rgdal)
-library(ReadImages)
-library(RgoogleMaps)
-data(meuse)
-coordinates(meuse) =~ x + y
-proj4string(meuse) = CRS("+init=epsg:28992")
-bbox(meuse)
-meuse1 = spTransform(meuse, CRS("+init=epsg:4326"))
-bbox(meuse1)
-meuse2=as.data.frame(meuse1)
-mzn=meuse2[,c(14,13,4)]
-names(mzn)<-c("Latitude","Longitude","zinc")
-bb <- qbbox(lat=range(mzn$Latitude), lon=range(mzn$Longitude))
-m <- c(mean(mzn$Latitude), mean(mzn$Longitude))
-zoom <- min(MaxZoom(latrange=bb$latR,lonrange=bb$lonR))
-Map <- GetMap.bbox(bb$lonR, bb$latR, zoom=zoom, maptype="mobile", ## or satellite
-NEWMAP=TRUE, destfile="tempmap.jpg", RETURNIMAGE=TRUE, GRAYSCALE=FALSE)
-##rescaled=(0.5*(mzn$zinc+max(mzn$zinc))-min(mzn$zinc))/(max(mzn$zinc)-min(mzn$zinc))
-rescaled=(mzn$zinc-min(mzn$zinc))/(max(mzn$zinc)-min(mzn$zinc))
-tmp <- PlotOnStaticMap(lat=mzn$Latitude, lon=mzn$Longitude,
-cex=2,pch=20,col=heat.colors(nrow(mzn), alpha = rescaled), MyMap=Map, NEWMAP=TRUE)
-
-### with OSM
-MMap <- GetMap.OSM(bb$lonR, bb$latR, scale = 12500, destfile = "tempmap.png", NEWMAP = TRUE, RETURNIMAGE=TRUE);
-tmp <- PlotOnStaticMap(lat=mzn$Latitude, lon=mzn$Longitude,
-cex=2,pch=20,col=heat.colors(nrow(mzn), alpha = rescaled),axes = TRUE, MyMap=MMap, mar = rep(4,4), NEWMAP=FALSE)
-
+###### Meuse data: plot on OSM
+basemap.osm <- openmap(c(bb$ymin, bb$xmin)-.003, c(bb$ymax, bb$xmax)+.001, zoom = NULL, 'osm')
+autoplot(basemap.osm) +
+	geom_point(data=mzn.coords, aes(x, y, size=zinc, color=zinc)) +
+	scale_color_gradient(low="blue", high="red", breaks=breaks, guide="legend") +
+	scale_size_continuous(breaks=breaks) + maplayout
 
 ####### Coso major faults
 #install.packages("geomapdata")
 library(rgdal)
-library(ReadImages)
-library(RgoogleMaps)
+library(sf)
 library(geomapdata)
+library(ggplot2)
+library(OpenStreetMap)
 data(cosomap)
-bb <- qbbox(lon=cosomap$POINTS$lon-360,lat=cosomap$POINTS$lat)
-MyMap <- GetMap.bbox(bb$lonR, bb$latR,destfile = "Coso.png",
-maptype="satellite",zoom=11)
-tmp <- PlotOnStaticMap(MyMap,lon=cosomap$POINTS$lon-360,
-lat=cosomap$POINTS$lat, pch=20,cex = .5,col='red',verbose=0);
+cp <- as.data.frame(cosomap$POINTS)
+cp$lon <- cp$lon - 360
+cosomap.points <- st_as_sf(x = cp, coords = c("lon", "lat"), crs = "+proj=longlat +datum=WGS84")
+bb <- st_bbox(cosomap.points)
+basemap <- openmap(c(bb$ymin, bb$xmin)-.003, c(bb$ymax, bb$xmax)+.003, zoom = NULL, 'bing')
+cp.coords <- cbind(cp, projectMercator(cp$lat,cp$lon))
+autoplot(basemap) +
+	geom_point(data=cp.coords, aes(x, y), size=1, color='red') +
+	maplayout
+
+basemap.latlon <- openproj(basemap, projection = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+autoplot(basemap.latlon) +
+	 geom_point(data=cp, aes(lon, lat), color="red") +
+	 geom_segment(aes(x = LON1-360, y = LAT1, xend = LON2-360, yend = LAT2), color="yellow", data=as.data.frame(cosomap$STROKES))
+
 
 dev.off()
 ############ earthquake data
